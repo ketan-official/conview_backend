@@ -9,6 +9,10 @@ const mongoose = require("mongoose");
 const userRoutes = require("./Routes/Admin/auth");
 const adminRoutes = require("./Routes/Admin/admin");
 const ReportRoutes = require("./Routes/report.route");
+const orgRoutes = require("./Routes/organization.route");
+const asset_routes = require("./Routes/assets.route");
+const section_routes = require("./Routes/section.route");
+const subsection_routes = require("./Routes/subsection.route");
 
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 5000;
@@ -27,6 +31,10 @@ app.use("/public", express.static(path.join(__dirname, "uploads")));
 app.use("/api", userRoutes);
 app.use("/api", adminRoutes);
 app.use("/api", ReportRoutes);
+app.use("/api", orgRoutes);
+app.use("/api", asset_routes);
+app.use("/api", section_routes);
+app.use("/api", subsection_routes);
 app.get("/", (req, res) => {
     return res.send("Welcome To Ketan's API's World");
   });
