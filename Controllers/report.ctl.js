@@ -11,6 +11,7 @@ exports.createReport = async (req, res) => {
     emailSent,
     emailSentTo,
     type,
+    userId
  } = req.body;
 
   const create_ReportModel = new ReportModel({
@@ -23,6 +24,7 @@ exports.createReport = async (req, res) => {
     emailSent,
     emailSentTo,
     type,
+    userId
   });
 
   create_ReportModel.save((error, data) => {

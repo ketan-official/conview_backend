@@ -25,6 +25,6 @@ router.delete(
 );
 
 // Update Address routes
-router.put("/assets/:id", require("./../Controllers/assets.ctl").updateassets);
+router.put("/assets/update/:id", require("./../Controllers/assets.ctl").updateassets);
 
 module.exports = router;

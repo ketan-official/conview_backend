@@ -1,4 +1,5 @@
 const SubSectionModel = require("../Models/subsection");
+const SubChieldSectionModel = require("../Models/subChildsection");
 const catModel = require("../Models/section");
 const slugify = require("slugify");
 exports.createSubSectionTemp = async (req, res) => {
@@ -58,32 +59,46 @@ exports.getSubCat = async (req, res) => {
 
 exports.getAllCategoriesWithSubcategories = async (req, res) => {
   try {
-      // Fetch all categories
-      const categories = await catModel.find().lean();
+    // Fetch all categories, subcategories, and sub-child categories
+    const categories = await catModel.find().lean();
+    const subcategories = await SubSectionModel.find().lean();
+    const subChieldcategories = await SubChieldSectionModel.find().lean();
 
-      // Fetch all subcategories at once and group them by category ID
-      const subcategories = await SubSectionModel.find().lean();
-      const subcategoriesByCategory = subcategories.reduce((acc, SubSection) => {
-          const parentId = SubSection.parentId.toString();
-          if (!acc[parentId]) {
-              acc[parentId] = [];
-          }
-          acc[parentId].push(SubSection);
-          return acc;
-      }, {});
+    // Group sub-child categories by subcategory (parent) ID
+    const subChildCategoriesBySubcategory = subChieldcategories.reduce((acc, subChild) => {
+      const parentId = subChild.subCatId.toString();
+      if (!acc[parentId]) {
+        acc[parentId] = [];
+      }
+      acc[parentId].push(subChild);
+      return acc;
+    }, {});
 
-      // Attach subcategories to their corresponding categories
-      const categoriesWithSubcategories = categories.map((category) => {
-          const categoryId = category._id.toString();
-          return {
-              ...category,
-              subcategories: subcategoriesByCategory[categoryId] || []
-          };
-      });
+    // Group subcategories by category (parent) ID
+    const subcategoriesByCategory = subcategories.reduce((acc, subCategory) => {
+      const parentId = subCategory.parentId.toString();
+      if (!acc[parentId]) {
+        acc[parentId] = [];
+      }
+      // Attach sub-child categories to each subcategory
+      subCategory.subChildCategories = subChildCategoriesBySubcategory[subCategory._id.toString()] || [];
+      acc[parentId].push(subCategory);
+      return acc;
+    }, {});
 
-      res.status(200).json(categoriesWithSubcategories);
+    // Attach subcategories to their corresponding categories
+    const categoriesWithSubcategories = categories.map((category) => {
+      const categoryId = category._id.toString();
+      return {
+        ...category,
+        subcategories: subcategoriesByCategory[categoryId] || []
+      };
+    });
+
+    res.status(200).json(categoriesWithSubcategories);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
+
 

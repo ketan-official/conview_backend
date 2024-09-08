@@ -1,9 +1,10 @@
 const express = require('express');
 const { signup, signin , getUser,getOne,deleteUser,updateUser,updatePassword} = require('../../Controllers/admin/auth');
 const { validateSignupRequest, validateSigninRequest, isRequestValidated, } = require('../../Validator/auth');
+const upload = require('../../middleware/MulterFile');
 const router = express.Router();
 router.get('/admin/get', getUser);
-router.post('/user/signup', signup);
+router.post('/user/signup',upload, signup);
 router.post('/user/signin', signin);
 router.get('/user/getAll', getUser);
 router.get('/user/getsingle/:id', getOne);

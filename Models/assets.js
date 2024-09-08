@@ -12,6 +12,10 @@ const assetsSchema = mongoose.Schema(
       ref: "subsection", // or Buffer, depending on how you're storing images
       required: true,
     },
+    subChieldsection: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "subChieldsection", // or Buffer, depending on how you're storing images
+    },
     description: {
       type: String,
     },

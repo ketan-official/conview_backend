@@ -11,6 +11,11 @@ const ReportSchema = mongoose.Schema(
     emailSent: { type: String, default: "Yes" },
     emailSentTo: { type: String, default: null },
     type: { type: String, default: null },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user", // or Buffer, depending on how you're storing images
+      default: null,
+    },
   },
   { timestamps: true }
 );

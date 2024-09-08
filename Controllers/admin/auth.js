@@ -1,8 +1,37 @@
+const { uploadToS3 } = require("../../middleware/Uploads");
 const User = require("../../Models/user");
- const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
+const fileUpload = async (files) => {
+  let ImgString = [];
+  if (files && Array.isArray(files)) {
+    for (const file of files) {
+      if (!file) continue; // Skip undefined files
+      const fileData = file.buffer;
+      let fileType = "";
+      if (file.mimetype === "application/pdf") {
+        fileType = "pdf";
+      } else if (
+        file.mimetype === "image/jpeg" ||
+        file.mimetype === "image/jpg"
+      ) {
+        fileType = "jpg";
+      } else if (file.mimetype === "image/png") {
+        fileType = "png";
+      } else if (file.mimetype === "video/mp4") {
+        fileType = "video/mp4";
+      } else {
+        throw new Error("Unsupported file type");
+      }
+      const uploadResults = await uploadToS3([{ fileData }], fileType);
+      for (const result of uploadResults) {
+        ImgString.push(result.Location);
+      }
+    }
+  }
+  return ImgString;
+};
 exports.signup = async (req, res) => {
   try {
-    console.log(65, req.body);
     const find = await User.findOne({ email: req.body.email });
     if (find) {
       return res.status(400).json({
@@ -12,24 +41,36 @@ exports.signup = async (req, res) => {
     const {
       firstName,
       lastName,
-      userName,
       email,
       phone,
       password,
-      wechatId,
-      authMethods,
+      companyName,
+      address,
+      city,
+      country,
+      postalCode,
+      prov,
+      status,
+      isActive,
       role,
     } = req.body;
+    const image = (await fileUpload(req.files["image"])) || [];
     const _user = new User({
       firstName,
       lastName,
-      userName,
-      email,
       phone,
+      companyName,
+      address,
+      city,
+      country,
       password,
-      wechatId,
-      authMethods,
+      email,
+      postalCode,
+      prov,
+      status,
+      isActive,
       role,
+      image
     });
     _user
       .save()
@@ -43,7 +84,6 @@ exports.signup = async (req, res) => {
       });
   } catch (err) {
     console.log("err", err);
-
     res.status(500).json({ err: err });
   }
 };
@@ -52,7 +92,7 @@ exports.signin = async (req, res) => {
   try {
     let { email, password } = req.body;
     User.findOne({ email }).then(async (user) => {
-      console.log(55,user)
+      console.log(55, user);
       if (user) {
         const isPassword = await user.matchPassword(password);
         if (isPassword) {
@@ -95,17 +135,17 @@ exports.getUser = async (req, res) => {
     // Respond with the filtered users
     res.status(200).json({
       success: true,
-      message: 'data fetched succefully',
+      message: "data fetched succefully",
       data: users,
     });
   } catch (err) {
     // Log the error for debugging purposes
-    console.error('Error fetching users:', err);
+    console.error("Error fetching users:", err);
 
     // Respond with an error message and status code
     res.status(500).json({
       success: false,
-      message: 'Server Error: Unable to fetch users',
+      message: "Server Error: Unable to fetch users",
       error: err.message,
     });
   }
@@ -120,7 +160,7 @@ exports.getOne = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      message: 'data fetched succefully',
+      message: "data fetched succefully",
       data: user,
     });
   } catch (error) {
@@ -146,7 +186,9 @@ exports.deleteUser = async (req, res) => {
 // Update a user by ID
 exports.updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -165,7 +207,7 @@ exports.updatePassword = async (req, res) => {
     if (!email || !oldPassword || !newPassword) {
       return res.status(400).json({
         statusCode: 400,
-        message: 'Please provide email, old password, and new password',
+        message: "Please provide email, old password, and new password",
         success: false,
       });
     }
@@ -175,7 +217,7 @@ exports.updatePassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         statusCode: 404,
-        message: 'User not found',
+        message: "User not found",
         success: false,
       });
     }
@@ -185,7 +227,7 @@ exports.updatePassword = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         statusCode: 401,
-        message: 'Incorrect old password',
+        message: "Incorrect old password",
         success: false,
       });
     }
@@ -196,11 +238,11 @@ exports.updatePassword = async (req, res) => {
 
     res.status(200).json({
       statusCode: 200,
-      message: 'Password updated successfully',
+      message: "Password updated successfully",
       success: true,
     });
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     res.status(500).json({
       statusCode: 500,
       message: `Internal Server Error: ${error.message}`,
@@ -208,7 +250,3 @@ exports.updatePassword = async (req, res) => {
     });
   }
 };
-
-
-
-

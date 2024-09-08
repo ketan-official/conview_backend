@@ -43,10 +43,7 @@ const upload = multer({
   }
   
 }).fields([
-  { name: 'businessLogo', maxCount: 1 },
-  { name: 'weChatQrCode', maxCount: 1 },
-  { name: 'images', maxCount: 5 }, // Adjust maxCount as necessary
-  { name: 'video', maxCount: 1 } // Adjust maxCount as necessary
+  { name: 'image', maxCount: 1 }, // Adjust maxCount as necessary
 ]);
 
 module.exports = upload;

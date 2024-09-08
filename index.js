@@ -13,6 +13,7 @@ const orgRoutes = require("./Routes/organization.route");
 const asset_routes = require("./Routes/assets.route");
 const section_routes = require("./Routes/section.route");
 const subsection_routes = require("./Routes/subsection.route");
+const subChieldsection_routes = require("./Routes/subChieldSection.route");
 
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,7 @@ app.use("/api", orgRoutes);
 app.use("/api", asset_routes);
 app.use("/api", section_routes);
 app.use("/api", subsection_routes);
+app.use("/api", subChieldsection_routes);
 app.get("/", (req, res) => {
     return res.send("Welcome To Ketan's API's World");
   });
